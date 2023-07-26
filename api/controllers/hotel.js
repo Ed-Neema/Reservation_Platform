@@ -14,13 +14,17 @@ const createHotel = async(req,res,next)=>{
 
 //UPDATE HOTEL
 const updateHotel = async (req,res,next)=>{
+  
     try {
+      
       const updatedHotel = await Hotel.findByIdAndUpdate(
         req.params.id,
         { $set: req.body }, //update the fields based on the data in req.body
         { new: true } //method will return the updated document after the update is applied. if false, old doc
       );
+      
       res.status(200).json(updatedHotel);
+      
     } catch (err) {
       next(err);
     }
