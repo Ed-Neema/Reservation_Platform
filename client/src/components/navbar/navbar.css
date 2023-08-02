@@ -4,6 +4,7 @@
     background-color: #507D76;
     display: flex;
     justify-content: center;
+    padding: 10px 20px;
 }
 
 .navContainer {
@@ -26,4 +27,10 @@
     padding: 0.5rem 1rem;
     cursor: pointer;
     color: #507D76;
+    border: 1px solid #507D76
+}
+.navButton:hover{
+    color: white;
+    background-color: #507D76;
+    border: 1px solid white;
 }
