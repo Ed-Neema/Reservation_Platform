@@ -67,7 +67,10 @@
     position: absolute;
     bottom: -28px;
     width: 95%;
-    max-width: 1024px;
+    right: 10px;
+    left: 10px;
+    /* margin-right: 100px; */
+    /* max-width: 1024px; */
     
 }
 

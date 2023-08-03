@@ -1,10 +1,10 @@
 .fp {
     width: 95%;
-    max-width: 1024px;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 20px;
+    /* max-width: 1024px; */
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 0.5rem;
+
 }
 
 .fpItem {
@@ -44,4 +44,14 @@
 
 .fpRating>span {
     font-size: 14px;
+}
+
+@media (max-width: 570px) {
+    .fp {
+
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+    }
+
 }
