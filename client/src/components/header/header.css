@@ -139,6 +139,9 @@
 .optionCounterButton:disabled {
     cursor: not-allowed;
 }
+.optionsTitle{
+    margin: .5rem 0;
+}
 
 
 @media (max-width: 768px) {

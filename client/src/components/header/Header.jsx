@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import {useNavigate} from "react-router-dom"
 import {
   faBed,
   faCalendarDays,
@@ -14,13 +15,7 @@ import "react-date-range/dist/styles.css"; // main style file
 import "react-date-range/dist/theme/default.css"; // theme css file
 import { format } from "date-fns";
 const Header = ({type}) => {
-  const [dates, setDates] = useState([
-    {
-      startDate: new Date(),
-      endDate: new Date(),
-      key: "selection",
-    },
-  ]);
+  const [destination, setDestination ] = useState("")
   const [openDate, setOpenDate] = useState(false);
   const [options, setOptions] = useState({
     adult: 1,
@@ -28,6 +23,13 @@ const Header = ({type}) => {
     room: 1,
   });
   const [openOptions, setOpenOptions] = useState(false);
+  const [dates, setDates] = useState([
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      key: "selection",
+    },
+  ]);
   const handleOption = (name, operation) => {
     setOptions((prev) => {
       return {
@@ -36,9 +38,19 @@ const Header = ({type}) => {
       };
     });
   };
+
+  const navigate = useNavigate();
+  const handleSearch = ()=>{
+    navigate("/hotels",{state: {destination, dates, options}})
+
+  }
   return (
     <div className="header">
-      <div className={type === "list" ? "headerContainer listMode" : "headerContainer"}>
+      <div
+        className={
+          type === "list" ? "headerContainer listMode" : "headerContainer"
+        }
+      >
         <div className="headerList">
           <div className="headerListItem active">
             <FontAwesomeIcon icon={faBed} />
@@ -77,6 +89,7 @@ const Header = ({type}) => {
                   type="text"
                   placeholder="Where are you going?"
                   className="headerSearchInput"
+                  onChange={(e) => setDestination(e.target.value)}
                 />
               </div>
               {/* dates */}
@@ -93,6 +106,7 @@ const Header = ({type}) => {
                 )}`}</span>
                 {openDate && (
                   <DateRange
+                    minDate={new Date()}
                     editableDateInputs={true}
                     onChange={(item) => setDates([item.selection])}
                     moveRangeOnFirstSelection={false}
@@ -182,7 +196,9 @@ const Header = ({type}) => {
               </div>
               {/* button */}
               <div className="headerSearchItem">
-                <button className="headerBtn">Search</button>
+                <button className="headerBtn" onClick={handleSearch}>
+                  Search
+                </button>
               </div>
             </div>
           </>
