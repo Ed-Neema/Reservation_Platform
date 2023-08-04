@@ -47,16 +47,52 @@ const deleteHotel = async(req,res,next)=>{
        res.status(200).json(hotel);
      } catch (err) {
        next(err);
-     }
+     } 
  }
 
 
  const getHotels = async (req, res) => {
+  const {min, max, ...others} = req.query
+  const limit = parseInt(req.query.limit);//convert it from string to number
    try {
-     const hotels = await Hotel.find();
+     const hotels = await Hotel.find({
+       ...others,
+       cheapestPrice: { $gt: min || 1, $lt: max || 10000 },
+     }).limit(limit);
      res.status(200).json(hotels);
    } catch (err) {
      res.status(500).json(err);
+   }
+ };
+ const countByCity = async (req, res) => {
+  const cities = req.query.cities.split(",")//get the cities query params, return array
+   try {
+    const list = await Promise.all(cities.map(city=>{
+      // return Hotel.find({city:city}).length //this can work but it is expensive since it fetches all the documents then counts
+      return Hotel.countDocuments({ city: city });//not fetching, just shows it's count
+    }))
+     res.status(200).json(list);
+   } catch (err) {
+     res.status(500).json(err);
+   }
+ };
+ const countByType = async (req, res) => {
+   try {
+     const hotelCount = await Hotel.countDocuments({ type: "Hotel" });
+     const apartmentCount = await Hotel.countDocuments({ type: "Apartment" });
+     const resortCount = await Hotel.countDocuments({ type: "Resort" });
+     const villaCount = await Hotel.countDocuments({ type: "Villa" });
+     const cabinCount = await Hotel.countDocuments({ type: "Cabin" });
+
+     res.status(200).json([
+       { type: "Hotels", count: hotelCount },
+       { type: "Apartments", count: apartmentCount },
+       { type: "Resorts", count: resortCount },
+       { type: "Villas", count: villaCount },
+       { type: "Cabins", count: cabinCount },
+     ]);
+   } catch (err) {
+     next(err);
    }
  };
 
@@ -66,4 +102,6 @@ const deleteHotel = async(req,res,next)=>{
    deleteHotel,
    getHotel,
    getHotels,
+   countByCity,
+   countByType,
  };
