@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import "./hotel.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -12,12 +12,16 @@ import Header from "../../components/header/Header";
 import MailList from "../../components/mailList/MailList";
 import Footer from "../../components/footer/Footer";
 import useFetch from "../../hooks/useFetch";
-import { useLocation } from "react-router";
+import { useLocation, useNavigate } from "react-router";
+import { SearchContext } from "../../context/SearchContext";
+import { AuthContext } from "../../context/AuthContext";
+import Reserve from "../../components/reserve/Reserve";
 const Hotel = () => {
   const location = useLocation();
   const id = location.pathname.split("/")[2];
   const [slideNumber, setSlideNumber] = useState(0);
-  const [open, setOpen] = useState(false);
+  const [openSlider, setOpenSlider] = useState(false);
+  const [openBookingModal, setOpenBookingModal] = useState(false);
   const { data, loading, error } = useFetch(`/hotels/find/${id}`);
   const photos = [
     {
@@ -42,7 +46,7 @@ const Hotel = () => {
 
   const handleOpen = (index) => {
     setSlideNumber(index);
-    setOpen(true);
+    setOpenSlider(true);
   };
 
   const handleMove = (direction) => {
@@ -54,6 +58,29 @@ const Hotel = () => {
     }
     setSlideNumber(newSlideNumber);
   };
+
+  const { dates,options } = useContext(SearchContext);
+  // console.log(dates);
+  // calculating the number of days user has selected
+  const MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24;
+  function dayDifference(date1, date2) {
+    const timeDiff = Math.abs(date2.getTime() - date1.getTime());
+    const diffDays = Math.ceil(timeDiff / MILLISECONDS_PER_DAY);
+    return diffDays;
+  }
+
+  const days = dayDifference(dates[0].endDate, dates[0].startDate);
+  const {user} = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    if(user){
+      // open modal to pick rooms
+      setOpenBookingModal(true)
+    } else {
+      navigate("/login")
+    }
+  }
   return (
     <div>
       <Navbar />
@@ -62,12 +89,12 @@ const Hotel = () => {
         "loading"
       ) : (
         <div className="hotelContainer">
-          {open && (
+          {openSlider && (
             <div className="slider">
               <FontAwesomeIcon
                 icon={faCircleXmark}
                 className="close"
-                onClick={() => setOpen(false)}
+                onClick={() => setOpenSlider(false)}
               />
               <FontAwesomeIcon
                 icon={faCircleArrowLeft}
@@ -89,7 +116,9 @@ const Hotel = () => {
             </div>
           )}
           <div className="hotelWrapper">
-            <button className="bookNow">Reserve or Book Now!</button>
+            <button className="bookNow" onClick={handleClick}>
+              Reserve or Book Now!
+            </button>
             <h1 className="hotelTitle">{data.name}</h1>
             <div className="hotelAddress">
               <FontAwesomeIcon icon={faLocationDot} />
@@ -120,22 +149,26 @@ const Hotel = () => {
                 <p className="hotelDesc">{data.desc}</p>
               </div>
               <div className="hotelDetailsPrice">
-                <h1>Perfect for a 9-night stay!</h1>
+                <h1>Perfect for a {days}-day stay!</h1>
                 <span>
                   Located in the real heart of Krakow, this property has an
                   excellent location score of 9.8!
                 </span>
                 <h2>
-                  <b>$945</b> (9
-                  nights)
+                  <b>${days * data.cheapestPrice * options.room}</b> ({days}{" "}
+                  Days, {`${options.room} room(s)`})
                 </h2>
-                <button>Reserve or Book Now!</button>
+                <button onClick={handleClick}>Reserve or Book Now!</button>
               </div>
             </div>
           </div>
           <MailList />
           <Footer />
         </div>
+      )}
+
+      {openBookingModal && (
+        <Reserve setOpen={setOpenBookingModal} hotelId={id} />
       )}
     </div>
   );
