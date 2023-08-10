@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "./hotel.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -16,12 +16,15 @@ import { useLocation, useNavigate } from "react-router";
 import { SearchContext } from "../../context/SearchContext";
 import { AuthContext } from "../../context/AuthContext";
 import Reserve from "../../components/reserve/Reserve";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const Hotel = () => {
   const location = useLocation();
   const id = location.pathname.split("/")[2];
   const [slideNumber, setSlideNumber] = useState(0);
   const [openSlider, setOpenSlider] = useState(false);
   const [openBookingModal, setOpenBookingModal] = useState(false);
+  const [openToast, setOpenToast] = useState(false);
   const { data, loading, error } = useFetch(`/hotels/find/${id}`);
   const photos = [
     {
@@ -48,6 +51,18 @@ const Hotel = () => {
     setSlideNumber(index);
     setOpenSlider(true);
   };
+  // useEffect(() => {
+  //   toast.success("Reservation Successful!", {
+  //     position: "top-right",
+  //     autoClose: 3000,
+  //     hideProgressBar: false,
+  //     closeOnClick: true,
+  //     pauseOnHover: true,
+  //     draggable: true,
+  //     progress: undefined,
+  //     theme: "light",
+  //   });
+  // }, [openToast]);
 
   const handleMove = (direction) => {
     var newSlideNumber;
@@ -59,7 +74,7 @@ const Hotel = () => {
     setSlideNumber(newSlideNumber);
   };
 
-  const { dates,options } = useContext(SearchContext);
+  const { dates, options } = useContext(SearchContext);
   // console.log(dates);
   // calculating the number of days user has selected
   const MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24;
@@ -70,17 +85,17 @@ const Hotel = () => {
   }
 
   const days = dayDifference(dates[0].endDate, dates[0].startDate);
-  const {user} = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleClick = () => {
-    if(user){
+    if (user) {
       // open modal to pick rooms
-      setOpenBookingModal(true)
+      setOpenBookingModal(true);
     } else {
-      navigate("/login")
+      navigate("/login");
     }
-  }
+  };
   return (
     <div>
       <Navbar />
@@ -170,6 +185,7 @@ const Hotel = () => {
       {openBookingModal && (
         <Reserve setOpen={setOpenBookingModal} hotelId={id} />
       )}
+      <ToastContainer />
     </div>
   );
 };
